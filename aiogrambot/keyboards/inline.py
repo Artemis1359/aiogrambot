@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogrambot.database.repository import select_async, select_async_goods
+from aiogrambot.database.repository import select_categories, select_goods
 
 settings_old = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -40,7 +40,7 @@ goods = [
 async def inline_categories():
 
     keyboard = InlineKeyboardBuilder()
-    categories = await select_async()
+    categories = await select_categories()
     for category in categories:
         keyboard.add(InlineKeyboardButton(text=category[1], callback_data=f'category_{category[1]}_{category[0]}'))
 
@@ -50,7 +50,7 @@ async def inline_categories():
 async def inline_goods(category_id: int):
 
     keyboard = InlineKeyboardBuilder()
-    goods = await select_async_goods(category_id=category_id)
+    goods = await select_goods(category_id=category_id)
     for good in goods:
         keyboard.add(InlineKeyboardButton(text=f'{good[1]} - {good[2]} / {good[3]}', callback_data=f'category_{good[0]}'))
     keyboard.add(InlineKeyboardButton(text='Назад', callback_data='catalog'))
