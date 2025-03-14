@@ -1,5 +1,6 @@
 import enum
 from datetime import datetime
+from email.policy import default
 
 from aiogrambot.database.db import Base
 from sqlalchemy import ForeignKey, func
@@ -16,6 +17,7 @@ class Users(Base):
     telegram_id: Mapped[int] = mapped_column(unique=True)
     name: Mapped[str]
     phone_number: Mapped[str]
+    is_admin: Mapped[bool] = mapped_column(default=False)
 
 
 class Categories(Base):
@@ -36,6 +38,7 @@ class Goods(Base):
     price: Mapped[int]
     measurement:Mapped[str]
     image_id: Mapped[str]
+    is_active: Mapped[bool] = mapped_column(default=True)
 
 
 class BasketStatuses(enum.Enum):
@@ -64,6 +67,7 @@ class GoodsBaskets(Base):
     __tablename__ = 'goods_baskets'
     id: Mapped[intpk]
     good_id: Mapped[int] = mapped_column(ForeignKey('goods.id'))
+    price: Mapped[int]
     basket_id: Mapped[int] = mapped_column(ForeignKey('baskets.id'))
     quantity: Mapped[float]
 
