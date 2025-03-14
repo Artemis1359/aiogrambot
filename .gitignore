@@ -172,4 +172,4 @@ cython_debug/
 
 
 aiogrambot/handlers/extra_handlers.py
-aiogrambot/models/create_models.py
+aiogrambot/database/create_models.py
