@@ -1,6 +1,6 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
+from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogrambot.database.repository import Admin, Category, Good
+from aiogrambot.database.repository import Admin, Category
 
 
 class InlineAdmin:
@@ -46,47 +46,3 @@ class InlineAdmin:
             keyboard.add(InlineKeyboardButton(text=category[1], callback_data=f'admin_category_add_{category[0]}'))
         return keyboard.adjust(1).as_markup()  # 2 это число кнопок в строке as_markup() всегда в конце
 
-
-class InlineCategory:
-
-    @staticmethod
-    async def inline_categories():
-
-        keyboard = InlineKeyboardBuilder()
-        categories = await Category.select_categories()
-        for category in categories:
-            keyboard.add(InlineKeyboardButton(text=category[1], callback_data=f'category_{category[0]}'))
-        keyboard.add(InlineKeyboardButton(text='Назад', callback_data='back_to_start'))
-        return keyboard.adjust(1).as_markup() # 2 это число кнопок в строке as_markup() всегда в конце
-
-    # @staticmethod
-    # async def inline_categories_admin():
-    #
-    #     keyboard = InlineKeyboardBuilder()
-    #     categories = await Category.select_categories()
-    #     for category in categories:
-    #         keyboard.add(InlineKeyboardButton(text=category[1], callback_data=f'category_{category[1]}_{category[0]}'))
-    #     keyboard.add(InlineKeyboardButton(text='Назад', callback_data='back_to_start'))
-    #     return keyboard.adjust(1).as_markup()  # 2 это число кнопок в строке as_markup() всегда в конце
-
-
-class InlineGood:
-
-    @staticmethod
-    async def inline_goods(category_id: int):
-
-        keyboard = InlineKeyboardBuilder()
-        goods = await Good.select_goods(category_id=category_id)
-        for good in goods:
-            keyboard.add(InlineKeyboardButton(
-                text=f'{good[1]} - {good[2]}р / {good[3]}',
-                callback_data=f'good_{good[1]}_{good[0]}'))
-        keyboard.add(InlineKeyboardButton(text='Назад', callback_data='catalog'))
-        return keyboard.adjust(1).as_markup()
-
-    @staticmethod
-    async def inline_good(good: tuple):
-
-        keyboard = InlineKeyboardBuilder()
-        keyboard.add(InlineKeyboardButton(text='Назад', callback_data=f'category_{good[5]}'))
-        return keyboard.adjust(1).as_markup()

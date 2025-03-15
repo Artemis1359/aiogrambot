@@ -10,7 +10,8 @@ dp = Dispatcher()
 
 async def main():
     dp.include_router(start_router)
-    dp.include_router(admin_router)
+    for router in admin_router:
+        dp.include_router(router)
     await dp.start_polling(bot)
 
 
