@@ -6,22 +6,23 @@ from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 from aiogrambot.database.models import Measurement
 from aiogrambot.database.repository import Good
 from aiogrambot.keyboards.inline import InlineAdmin, InlineCategory, InlineGood
+from aiogrambot.utils.callback_helpers import callback_message_editor
 
 start_router = Router()
 
 @start_router.message(CommandStart())
 async def cmd_start(message: Message):
     telegram_id = message.from_user.id
-    await message.answer('''Откройте для себя вкус настоящей домашней еды с Маминой Кухней👩🏼‍🍳
-''', reply_markup=await InlineAdmin.inline_is_admin(telegram_id=telegram_id))
+    await message.answer('''Откройте для себя вкус настоящей домашней еды с Маминой Кухней👩🏼‍🍳''',
+                         reply_markup=await InlineAdmin.inline_is_admin(telegram_id=telegram_id))
 
 
 @start_router.callback_query(F.data == 'back_to_start')
 async def start_back_to_start(callback: CallbackQuery):
     await callback.answer('Вы выбрали каталог!')
     telegram_id = callback.from_user.id
-    await callback.message.edit_text('''Откройте для себя вкус настоящей домашней еды с Маминой Кухней👩🏼‍🍳
-''', reply_markup=await InlineAdmin.inline_is_admin(telegram_id=telegram_id))
+    await callback.message.edit_text('''Откройте для себя вкус настоящей домашней еды с Маминой Кухней👩🏼‍🍳''',
+                                     reply_markup=await InlineAdmin.inline_is_admin(telegram_id=telegram_id))
 
 
 @start_router.callback_query(F.data == 'start_catalog')
@@ -35,17 +36,13 @@ async def catalog(callback: CallbackQuery):
 @start_router.callback_query(F.data.startswith('category_'))
 async def category(callback: CallbackQuery):
     # await callback.answer(f'Вы выбрали {callback.data.split('_')[1]}!')
-    # TODO Убрать дублирование
-    if callback.message.text:
-        await callback.message.edit_text(
-            'Выберите товар, чтобы посмотреть дополнительную информацию',
-            reply_markup=await InlineGood.inline_goods(category_id=int(callback.data.split('_')[-1])))
-    else:
-        # Если в сообщении только фото — удаляем его и отправляем новое
-        await callback.message.delete()
-        await callback.message.answer(
-            "Выберите товар, чтобы посмотреть дополнительную информацию",
-            reply_markup=await InlineGood.inline_goods(category_id=int(callback.data.split('_')[-1])))
+
+    await callback_message_editor(
+        callback=callback,
+        text='Выберите товар, чтобы посмотреть дополнительную информацию',
+        reply_markup=await InlineGood.inline_goods(category_id=int(callback.data.split('_')[-1]))
+    )
+
 
 
 @start_router.callback_query(F.data.startswith('good_'))

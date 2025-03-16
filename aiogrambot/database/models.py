@@ -62,7 +62,7 @@ class Baskets(Base):
     __tablename__ = 'baskets'
 
     id: Mapped[intpk]
-    client_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    client_id: Mapped[int] = mapped_column(ForeignKey('users.telegram_id'))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(),
                                                  onupdate=datetime.now)
@@ -82,7 +82,7 @@ class Orders(Base):
     __tablename__ = 'orders'
 
     id: Mapped[intpk]
-    client_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    client_id: Mapped[int] = mapped_column(ForeignKey('users.telegram_id'))
     basket_id: Mapped[int] = mapped_column(ForeignKey('baskets.id'))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(),

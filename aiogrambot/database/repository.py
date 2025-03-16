@@ -1,8 +1,11 @@
 import asyncio
+import enum
+
 from sqlalchemy import insert, text
 
 from aiogrambot.database.db import async_session, engine
-from aiogrambot.database.models import Base, Categories, Goods
+from aiogrambot.database.models import Base, Categories, Goods, Baskets, BasketStatuses, GoodsBaskets
+
 
 class Category:
 
@@ -91,7 +94,67 @@ class Admin:
             return is_admin
 
 class Basket:
-    pass
+
+    @staticmethod
+    async def select_basket(telegram_id: int):
+        async with async_session() as session:
+            query = """
+                            SELECT 
+                                id
+                            FROM baskets
+                            WHERE
+                                status = 'created'
+                                and client_id =:telegram_id;
+                            """
+            result = await session.execute(text(query), {'telegram_id': telegram_id})
+            good = result.fetchone()
+            return good
+
+    @staticmethod
+    async def create_new_basket(telegram_id: int):
+        async with async_session() as session:
+            basket = Baskets(
+                client_id=telegram_id,
+                status=BasketStatuses.created
+            )
+            session.add(basket)
+            await session.commit()
+            return basket.id
+
+class GoodBasket:
+
+    @staticmethod
+    async def input_good_to_basket(basket_id: int, good_id: int, quantity: int, price: int):
+        async with async_session() as session:
+            good_basket = GoodsBaskets(
+                basket_id=basket_id,
+                good_id=good_id,
+                quantity=quantity,
+                price=price
+            )
+            session.add(good_basket)
+            await session.commit()
+
+    @staticmethod
+    async def select_goods_in_basket(telegram_id: int):
+        async with async_session() as session:
+            query = """
+                                SELECT 
+                                    goods.name,
+                                    goods_baskets.price,
+                                    quantity,
+                                    goods_baskets.price * quantity as amount
+                                FROM goods_baskets
+                                JOIN baskets
+                                    on baskets.id=goods_baskets.basket_id
+                                    AND baskets.status = 'created'
+                                    AND client_id =:telegram_id
+                                JOIN goods
+                                    on goods.id=goods_baskets.good_id
+                                """
+            result = await session.execute(text(query), {'telegram_id': telegram_id})
+            good = result.fetchall()
+            return good
 
 class Order:
     pass

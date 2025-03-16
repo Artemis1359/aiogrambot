@@ -24,6 +24,6 @@ class InlineGood:
         """Клавиатура внутри полной информации о товаре."""
 
         keyboard = InlineKeyboardBuilder()
-        keyboard.add(InlineKeyboardButton(text='Добавить в корзину', callback_data=f'basket_good_{good[4]}_{good[0]}'))
+        keyboard.add(InlineKeyboardButton(text='Добавить в корзину', callback_data=f'b_g_{good[4]}_{good[3]}_{good[0]}'))
         keyboard.add(InlineKeyboardButton(text='Назад', callback_data=f'category_{good[5]}'))
         return keyboard.adjust(1).as_markup()
