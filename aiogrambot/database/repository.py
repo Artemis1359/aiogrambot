@@ -18,6 +18,14 @@ class Category:
             categories = result.fetchall()
             return categories
 
+    @staticmethod
+    async def input_category(data):
+        async with async_session() as session:
+            category = Categories(
+                name=data.get('name')
+            )
+            session.add(category)
+            await session.commit()
 
 class Good:
 
@@ -82,6 +90,9 @@ class Admin:
                 is_admin=is_admin[0]
             return is_admin
 
-# result = asyncio.run(select_good(good_id=5))
-# print(result)
+class Basket:
+    pass
+
+class Order:
+    pass
 

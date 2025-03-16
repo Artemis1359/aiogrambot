@@ -26,6 +26,12 @@ class Categories(Base):
     id: Mapped[intpk]
     name: Mapped[str]
 
+class Measurement(enum.Enum):
+    kg = 'кг.'
+    piece = 'шт.'
+    l6 = '0,6 л.'
+    l5 = '0,5 л.'
+
 
 class Goods(Base):
     __tablename__ = 'goods'
@@ -36,7 +42,7 @@ class Goods(Base):
     category_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('categories.id', ondelete='SET NULL'))
     price: Mapped[int]
-    measurement:Mapped[str]
+    measurement: Mapped[Measurement]
     image_id: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True)
 

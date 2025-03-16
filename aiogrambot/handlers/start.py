@@ -2,6 +2,8 @@ from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
+
+from aiogrambot.database.models import Measurement
 from aiogrambot.database.repository import Good
 from aiogrambot.keyboards.inline import InlineAdmin, InlineCategory, InlineGood
 
@@ -15,14 +17,14 @@ async def cmd_start(message: Message):
 
 
 @start_router.callback_query(F.data == 'back_to_start')
-async def back_to_start(callback: CallbackQuery):
+async def start_back_to_start(callback: CallbackQuery):
     await callback.answer('Вы выбрали каталог!')
     telegram_id = callback.from_user.id
     await callback.message.edit_text('''Откройте для себя вкус настоящей домашней еды с Маминой Кухней👩🏼‍🍳
 ''', reply_markup=await InlineAdmin.inline_is_admin(telegram_id=telegram_id))
 
 
-@start_router.callback_query(F.data == 'catalog')
+@start_router.callback_query(F.data == 'start_catalog')
 async def catalog(callback: CallbackQuery):
     await callback.answer('Вы выбрали каталог!')
 
@@ -57,17 +59,12 @@ async def category(callback: CallbackQuery):
         await callback.message.edit_media(
             media = InputMediaPhoto(
                 media=good[6],
-                caption=f"{good[1]}\n {good[2]}\n {good[3]}р / {good[4]}"
+                caption=f"{good[1]}\n {good[2]}\n {good[3]}р / {Measurement[good[4]].value}"
             )
         )
     except TelegramBadRequest:
         await callback.message.edit_text(
-            text=f"{good[1]}\n {good[2]}\n {good[3]}р / {good[4]}"
+            text=f"{good[1]}\n {good[2]}\n {good[3]}р / {Measurement[good[4]].value}"
         )
 
     await callback.message.edit_reply_markup(reply_markup = await InlineGood.inline_good(good))
-
-@start_router.message(Command('photo'))
-async def get_photo(message: Message):
-    # Посмотреть что можно передавать
-    await message.answer_photo(photo='photoID', caption='Описание')

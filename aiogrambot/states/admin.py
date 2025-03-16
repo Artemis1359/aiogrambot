@@ -7,3 +7,6 @@ class AddGood(StatesGroup):
     waiting_for_measurement = State()
     waiting_for_image = State()
     waiting_for_category = State()
+
+class AddCategory(StatesGroup):
+    waiting_for_name = State()

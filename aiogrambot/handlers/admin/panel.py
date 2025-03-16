@@ -3,10 +3,12 @@ from aiogram.types import CallbackQuery
 from aiogrambot.keyboards.inline.admin import InlineAdmin
 
 
-panel_router = Router()
+admin_router = Router()
 
-@panel_router.callback_query(F.data == 'admin')
+@admin_router.callback_query(F.data == 'admin')
 async def admin_panel(callback: CallbackQuery):
+    """Открывает панель администратора"""
+
     await callback.answer('Вы выбрали Админ-панель!')
     await callback.message.edit_text(
         'Выберите действие',
