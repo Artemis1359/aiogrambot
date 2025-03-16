@@ -25,18 +25,20 @@ async def basket_good_quantity(callback: CallbackQuery):
         reply_markup=await InlineBasket.inline_quantity_in_basket(good_id=good_id, measure=measure, price=price)
     )
 
+
 @basket_router.callback_query(F.data.startswith('b_add_'))
 async def basket_add(callback: CallbackQuery):
     """Добавляет товар в корзину."""
 
+
+##TODO При одном good_id, basket_id - quantiy не должен добавляться, а должен обновляться
+    parts = callback.data.split('_')
     telegram_id = callback.from_user.id
     basket_id = await Basket.select_basket(telegram_id)
     if not basket_id:
         basket_id = await Basket.create_new_basket(telegram_id)
     else:
         basket_id = basket_id[0]
-    print(basket_id)
-    parts = callback.data.split('_')
     good_id = int(parts[-1])
     price = int(parts[-2])
     quantity = int(parts[2])

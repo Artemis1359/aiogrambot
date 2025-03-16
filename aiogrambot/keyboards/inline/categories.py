@@ -13,7 +13,8 @@ class InlineCategory:
         keyboard = InlineKeyboardBuilder()
         categories = await Category.select_categories()
         for category in categories:
-            keyboard.add(InlineKeyboardButton(text=category[1], callback_data=f'category_{category[0]}'))
+            keyboard.add(InlineKeyboardButton(
+                text=category.get('name'), callback_data=f"category_{category.get('id')}"))
         keyboard.add(InlineKeyboardButton(text='Назад', callback_data='back_to_start'))
         return keyboard.adjust(1).as_markup()
 

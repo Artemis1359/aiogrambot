@@ -50,18 +50,19 @@ async def category(callback: CallbackQuery):
 
     good_id = int(callback.data.split('_')[-1])
     good = await Good.select_good(good_id=good_id)
-    await callback.answer(f'Вы выбрали {good[1]}')
-
+    await callback.answer(f"Вы выбрали {good.get('name')}")
+    text = (f"{good.get('name')}\n {good.get('description')}\n "
+            f"{good.get('price')}р / {Measurement[good.get('measurement')].value}")
     try:
         await callback.message.edit_media(
             media = InputMediaPhoto(
-                media=good[6],
-                caption=f"{good[1]}\n {good[2]}\n {good[3]}р / {Measurement[good[4]].value}"
+                media=good.get('image_id'),
+                caption=text
             )
         )
     except TelegramBadRequest:
         await callback.message.edit_text(
-            text=f"{good[1]}\n {good[2]}\n {good[3]}р / {Measurement[good[4]].value}"
+            text=text
         )
 
     await callback.message.edit_reply_markup(reply_markup = await InlineGood.inline_good(good))

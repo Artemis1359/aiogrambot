@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
+from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from aiogrambot.database.models import Measurement
@@ -14,16 +14,20 @@ class InlineGood:
         goods = await Good.select_goods(category_id=category_id)
         for good in goods:
             keyboard.add(InlineKeyboardButton(
-                text=f'{good[1]} - {good[2]}р / {Measurement[good[3]].value}',
-                callback_data=f'good_{good[0]}'))
+                text=f"{good.get('name')} - {good.get('price')}р / {Measurement[good.get('measurement')].value}",
+                callback_data=f"good_{good.get('id')}"))
         keyboard.add(InlineKeyboardButton(text='Назад', callback_data='start_catalog'))
         return keyboard.adjust(1).as_markup()
 
     @staticmethod
-    async def inline_good(good: tuple):
+    async def inline_good(good: dict):
         """Клавиатура внутри полной информации о товаре."""
 
         keyboard = InlineKeyboardBuilder()
-        keyboard.add(InlineKeyboardButton(text='Добавить в корзину', callback_data=f'b_g_{good[4]}_{good[3]}_{good[0]}'))
-        keyboard.add(InlineKeyboardButton(text='Назад', callback_data=f'category_{good[5]}'))
+        keyboard.add(InlineKeyboardButton(
+            text='Добавить в корзину',
+            callback_data=f"b_g_{good.get('measurement')}_{good.get('price')}_{good.get('id')}"))
+        keyboard.add(InlineKeyboardButton(
+            text='Назад',
+            callback_data=f"category_{good.get('category_id')}"))
         return keyboard.adjust(1).as_markup()

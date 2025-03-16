@@ -18,7 +18,8 @@ async def basket_text(data):
     amount = 0
     text = f'В корзине:\n\n'
     for good in data:
-        text += f' • {good[0]} - ({good[2]} * {int(good[1])}р)\n {int(good[3])}р\n\n'
-        amount += int(good[3])
-    text += f'Общая стоимость {amount}'
+        text += (f" • {good.get('name')} - ({good.get('quantity')} * {int(good.get('price'))}р)\n "
+                 f"{int(good.get('amount'))}р\n\n")
+        amount += int(good.get('amount'))
+    text += f'Общая стоимость {amount}р'
     return text

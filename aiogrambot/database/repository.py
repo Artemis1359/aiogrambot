@@ -18,7 +18,7 @@ class Category:
                     FROM categories;
                     """
             result = await session.execute(text(query))
-            categories = result.fetchall()
+            categories = result.mappings().all()
             return categories
 
     @staticmethod
@@ -57,7 +57,7 @@ class Good:
                         category_id =:category_id;
                     """
             result = await session.execute(text(query), {'category_id': category_id})
-            goods = result.fetchall()
+            goods = result.mappings().all()
             return goods
 
     @staticmethod
@@ -73,7 +73,7 @@ class Good:
                                 id =:good_id;
                             """
             result = await session.execute(text(query), {'good_id': good_id})
-            good = result.fetchone()
+            good = result.mappings().first()
             return good
 
 class Admin:
@@ -153,7 +153,7 @@ class GoodBasket:
                                     on goods.id=goods_baskets.good_id
                                 """
             result = await session.execute(text(query), {'telegram_id': telegram_id})
-            good = result.fetchall()
+            good = result.mappings().all()
             return good
 
 class Order:
