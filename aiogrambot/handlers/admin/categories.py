@@ -20,8 +20,8 @@ async def admin_categories(callback: CallbackQuery):
         reply_markup=await InlineAdmin.admin_categories())
 
 @categories_router.callback_query(F.data == 'add_cat')
-async def add_good(callback: CallbackQuery, state: FSMContext):
-    await callback.answer('Вы выбрали Добавить товар!')
+async def add_cat(callback: CallbackQuery, state: FSMContext):
+    await callback.answer('Вы выбрали Добавить категорию!')
     await callback.message.edit_text("Чтобы добавить категорию, напишите её название.")
     await state.set_state(AddCategory.waiting_for_name)
 
