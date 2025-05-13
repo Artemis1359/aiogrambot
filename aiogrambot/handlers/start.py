@@ -7,6 +7,7 @@ from aiogrambot.database.models import Measurement
 from aiogrambot.database.repository import Good
 from aiogrambot.keyboards.inline import InlineAdmin, InlineCategory, InlineGood
 from aiogrambot.utils.callback_helpers import callback_message_editor
+from aiogrambot.utils.user_helpers import check_users
 
 start_router = Router()
 
@@ -28,7 +29,8 @@ async def start_back_to_start(callback: CallbackQuery):
 @start_router.callback_query(F.data == 'start_catalog')
 async def catalog(callback: CallbackQuery):
     await callback.answer('Вы выбрали каталог!')
-
+    telegram_id = callback.from_user.id
+    await check_users(telegram_id)
     await callback.message.edit_text(
         'Выберите категорию, чтобы посмотреть список товаров',
         reply_markup=await InlineCategory.inline_categories())

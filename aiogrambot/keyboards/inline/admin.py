@@ -83,7 +83,7 @@ class InlineAdmin:
         keyboard = InlineKeyboardBuilder()
         categories = await Category.select_categories()
         for category in categories:
-            keyboard.add(InlineKeyboardButton(text=category[1], callback_data=f'admin_category_add_{category[0]}'))
+            keyboard.add(InlineKeyboardButton(text=category.get('name'), callback_data=f"admin_category_add_{category.get('id')}"))
         return keyboard.adjust(1).as_markup()  # 2 это число кнопок в строке as_markup() всегда в конце
 
     @staticmethod

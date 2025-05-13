@@ -4,7 +4,7 @@ import enum
 from sqlalchemy import insert, text
 
 from aiogrambot.database.db import async_session, engine
-from aiogrambot.database.models import Base, Categories, Goods, Baskets, BasketStatuses, GoodsBaskets
+from aiogrambot.database.models import Base, Categories, Goods, Baskets, BasketStatuses, GoodsBaskets, Users
 
 
 class Category:
@@ -158,4 +158,29 @@ class GoodBasket:
 
 class Order:
     pass
+
+class User:
+
+    @staticmethod
+    async def select_user(telegram_id: int):
+        async with async_session() as session:
+
+            query = """
+                    SELECT id
+                    FROM users
+                    WHERE 
+                        telegram_id=:telegram_id;
+                    """
+            result = await session.execute(text(query), {'telegram_id': telegram_id})
+            id = result.mappings().first()
+            return id
+
+    @staticmethod
+    async def input_user(telegram_id: int):
+        async with async_session() as session:
+            user = Users(
+                telegram_id=telegram_id
+            )
+            session.add(user)
+            await session.commit()
 

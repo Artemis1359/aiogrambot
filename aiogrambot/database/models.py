@@ -15,8 +15,8 @@ class Users(Base):
 
     id: Mapped[intpk]
     telegram_id: Mapped[int] = mapped_column(unique=True)
-    name: Mapped[str]
-    phone_number: Mapped[str]
+    name: Mapped[Optional[str]]
+    phone_number: Mapped[Optional[str]]
     is_admin: Mapped[bool] = mapped_column(default=False)
 
 
