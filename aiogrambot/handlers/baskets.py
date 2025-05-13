@@ -12,20 +12,6 @@ from aiogrambot.utils.text_helpers import basket_text
 
 basket_router = Router()
 
-# @basket_router.callback_query(F.data.startswith('b_g_'))
-# async def basket_good_quantity(callback: CallbackQuery):
-#     """Открывает панель выбора количества товара."""
-#
-#     good_id = int(callback.data.split('_')[-1])
-#     price = int(callback.data.split('_')[3])
-#     measure = callback.data.split('_')[2]
-#     text = await measure_check(measure)
-#     await callback_message_editor(
-#         callback=callback,
-#         text=text,
-#         reply_markup=await InlineBasket.inline_quantity_in_basket(good_id=good_id, measure=measure, price=price)
-#     )
-
 
 @basket_router.callback_query(F.data.startswith('b_add_'))
 async def basket_add(callback: CallbackQuery, state: FSMContext):

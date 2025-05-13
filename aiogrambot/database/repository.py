@@ -37,6 +37,20 @@ class Category:
             categories = result.mappings().all()
             return categories
 
+
+    @staticmethod
+    async def select_is_subcat(category_id: int):
+        async with async_session() as session:
+            query = """
+                            SELECT parent_cat
+                            FROM categories
+                            WHERE id =:category_id
+                                AND parent_cat IS NOT NULL;
+                            """
+            result = await session.execute(text(query), {'category_id': category_id})
+            categories = result.mappings().first()
+            return categories
+
     @staticmethod
     async def input_category(data):
         async with async_session() as session:

@@ -4,19 +4,26 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogrambot.database.models import Measurement
 from aiogrambot.database.repository import Good
 
+
 class InlineGood:
 
     @staticmethod
-    async def inline_goods(category_id: int):
+    async def inline_goods(category_id: int, subcategory: dict):
         """Клавиатура с выбором товаров внутри категории."""
+
 
         keyboard = InlineKeyboardBuilder()
         goods = await Good.select_goods(category_id=category_id)
+
         for good in goods:
             keyboard.add(InlineKeyboardButton(
                 text=f"{good.get('name')} - {good.get('price')}р / {Measurement[good.get('measurement')].value}",
                 callback_data=f"good_1_{good.get('id')}"))
-        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='start_catalog'))
+        if not subcategory:
+            callback_data = 'start_catalog'
+        else:
+            callback_data = f"subcategory_{subcategory.get('parent_cat')}"
+        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data=callback_data))
         return keyboard.adjust(1).as_markup()
 
     @staticmethod

@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 
 from aiogrambot.database.models import Measurement
-from aiogrambot.database.repository import Good
+from aiogrambot.database.repository import Good, Category
 from aiogrambot.keyboards.inline import InlineAdmin, InlineCategory, InlineGood
 from aiogrambot.states.category import CategoryStates
 from aiogrambot.utils.callback_helpers import callback_message_editor
@@ -45,10 +45,12 @@ async def category(callback: CallbackQuery, state: FSMContext):
     await state.set_state(CategoryStates.viewing)
     await state.update_data(category_id=category_id)
 
+    subcategory = await Category.select_is_subcat(category_id)
+    print(subcategory)
     await callback_message_editor(
         callback=callback,
         text='Выберите товар, чтобы посмотреть дополнительную информацию',
-        reply_markup=await InlineGood.inline_goods(category_id=category_id)
+        reply_markup=await InlineGood.inline_goods(category_id=category_id, subcategory=subcategory)
     )
 
 
