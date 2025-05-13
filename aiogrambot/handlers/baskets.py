@@ -1,11 +1,12 @@
 from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 
 
 from aiogrambot.database.repository import Basket, GoodBasket
-from aiogrambot.keyboards.inline import InlineBasket
+from aiogrambot.keyboards.inline import InlineBasket, InlineCategory
 from aiogrambot.utils.callback_helpers import callback_message_editor
 from aiogrambot.utils.text_helpers import basket_text
 
@@ -27,7 +28,7 @@ basket_router = Router()
 
 
 @basket_router.callback_query(F.data.startswith('b_add_'))
-async def basket_add(callback: CallbackQuery):
+async def basket_add(callback: CallbackQuery, state: FSMContext):
     """Добавляет товар в корзину."""
 
     parts = callback.data.split('_')
@@ -41,7 +42,15 @@ async def basket_add(callback: CallbackQuery):
     price = int(parts[-2])
     quantity = int(parts[2])
 
+    data = await state.get_data()
+    category_id = data.get("category_id")
+
     await GoodBasket.input_good_to_basket(basket_id, good_id, quantity, price)
+    await callback.message.edit_text(
+        "✅ Товар добавлен в корзину!",
+        reply_markup=await InlineCategory.inline_back_to_category(category_id=category_id)
+    )
+    await callback.answer()
 
 
 @basket_router.callback_query(F.data == 'start_basket')

@@ -35,6 +35,14 @@ class InlineCategory:
         keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='start_catalog'))
         return keyboard.adjust(1).as_markup()
 
+    @staticmethod
+    async def inline_back_to_category(category_id: int):
+        """Клавиатура назад в каталоге."""
+
+        keyboard = InlineKeyboardBuilder()
+        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data=f'category_{category_id}'))
+        return keyboard.adjust(1).as_markup()
+
     # @staticmethod
     # async def inline_categories_admin():
     #

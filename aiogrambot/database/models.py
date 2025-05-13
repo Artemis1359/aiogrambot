@@ -3,7 +3,7 @@ from datetime import datetime
 from email.policy import default
 
 from aiogrambot.database.db import Base
-from sqlalchemy import ForeignKey, func, UniqueConstraint
+from sqlalchemy import ForeignKey, func, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Annotated, Optional
 
@@ -77,10 +77,12 @@ class GoodsBaskets(Base):
     good_id: Mapped[int] = mapped_column(ForeignKey('goods.id'))
     price: Mapped[int]
     basket_id: Mapped[int] = mapped_column(ForeignKey('baskets.id'))
-    quantity: Mapped[float]
+    quantity: Mapped[int]
 
     __table_args__ = (
         UniqueConstraint("basket_id", "good_id", name="uix_basket_good"),
+        CheckConstraint('quantity > 0', name='check_quantity_positive'),
+        CheckConstraint('price > 0', name='check_price_positive')
     )
 
 

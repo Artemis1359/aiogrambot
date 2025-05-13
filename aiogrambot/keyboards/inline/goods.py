@@ -28,9 +28,9 @@ class InlineGood:
         category_id = good.get('category_id')
 
         keyboard = InlineKeyboardBuilder()
-        keyboard.add(InlineKeyboardButton(text='➖', callback_data=f'good_{quantity - 1}_{good_id}'))
+        keyboard.add(InlineKeyboardButton(text='➖', callback_data=f'q_good_{quantity - 1}_{good_id}'))
         keyboard.add(InlineKeyboardButton(text=f'{quantity}', callback_data = "noop"))
-        keyboard.add(InlineKeyboardButton(text='➕', callback_data=f'good_{quantity + 1}_{good_id}'))
+        keyboard.add(InlineKeyboardButton(text='➕', callback_data=f'q_good_{quantity + 1}_{good_id}'))
         keyboard.add(InlineKeyboardButton(
             text='✅ Добавить',
             callback_data=f"b_add_{quantity}_{price}_{good_id}"))

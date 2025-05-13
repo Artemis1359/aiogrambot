@@ -1,11 +1,13 @@
 from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 
 from aiogrambot.database.models import Measurement
 from aiogrambot.database.repository import Good
 from aiogrambot.keyboards.inline import InlineAdmin, InlineCategory, InlineGood
+from aiogrambot.states.category import CategoryStates
 from aiogrambot.utils.callback_helpers import callback_message_editor
 from aiogrambot.utils.user_helpers import check_users
 
@@ -36,13 +38,17 @@ async def catalog(callback: CallbackQuery):
         reply_markup=await InlineCategory.inline_categories())
 
 @start_router.callback_query(F.data.startswith('category_'))
-async def category(callback: CallbackQuery):
-    # await callback.answer(f'Вы выбрали {callback.data.split('_')[1]}!')
+async def category(callback: CallbackQuery, state: FSMContext):
+
+    category_id = int(callback.data.split('_')[-1])
+
+    await state.set_state(CategoryStates.viewing)
+    await state.update_data(category_id=category_id)
 
     await callback_message_editor(
         callback=callback,
         text='Выберите товар, чтобы посмотреть дополнительную информацию',
-        reply_markup=await InlineGood.inline_goods(category_id=int(callback.data.split('_')[-1]))
+        reply_markup=await InlineGood.inline_goods(category_id=category_id)
     )
 
 
@@ -53,6 +59,15 @@ async def subcategory(callback: CallbackQuery):
         text='Выберите подкатегорию:',
         reply_markup=await InlineCategory.inline_subcategories(category_id=int(callback.data.split('_')[-1]))
     )
+
+@start_router.callback_query(F.data.startswith("q_good_"))
+async def quantity_good(callback: CallbackQuery):
+    good_id = int(callback.data.split("_")[-1])
+    good = await Good.select_good(good_id=good_id)
+    quantity = int(callback.data.split("_")[-2])
+    if quantity >= 1:
+        await callback.message.edit_reply_markup(reply_markup = await InlineGood.inline_good(good, quantity))
+    await callback.answer()
 
 @start_router.callback_query(F.data.startswith('good_'))
 async def good(callback: CallbackQuery):
