@@ -15,19 +15,25 @@ class InlineGood:
         for good in goods:
             keyboard.add(InlineKeyboardButton(
                 text=f"{good.get('name')} - {good.get('price')}р / {Measurement[good.get('measurement')].value}",
-                callback_data=f"good_{good.get('id')}"))
-        keyboard.add(InlineKeyboardButton(text='Назад', callback_data='start_catalog'))
+                callback_data=f"good_1_{good.get('id')}"))
+        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='start_catalog'))
         return keyboard.adjust(1).as_markup()
 
     @staticmethod
-    async def inline_good(good: dict):
+    async def inline_good(good: dict, quantity: int):
         """Клавиатура внутри полной информации о товаре."""
 
+        good_id = good.get('id')
+        price = good.get('price')
+        category_id = good.get('category_id')
+
         keyboard = InlineKeyboardBuilder()
+        keyboard.add(InlineKeyboardButton(text='➖', callback_data=f'good_{quantity - 1}_{good_id}'))
+        keyboard.add(InlineKeyboardButton(text=f'{quantity}', callback_data = "noop"))
+        keyboard.add(InlineKeyboardButton(text='➕', callback_data=f'good_{quantity + 1}_{good_id}'))
         keyboard.add(InlineKeyboardButton(
-            text='Добавить в корзину',
-            callback_data=f"b_g_{good.get('measurement')}_{good.get('price')}_{good.get('id')}"))
-        keyboard.add(InlineKeyboardButton(
-            text='Назад',
-            callback_data=f"category_{good.get('category_id')}"))
-        return keyboard.adjust(1).as_markup()
+            text='✅ Добавить',
+            callback_data=f"b_add_{quantity}_{price}_{good_id}"))
+
+        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data=f'category_{category_id}'))
+        return keyboard.adjust(3).as_markup()

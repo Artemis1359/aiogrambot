@@ -13,9 +13,26 @@ class InlineCategory:
         keyboard = InlineKeyboardBuilder()
         categories = await Category.select_categories()
         for category in categories:
+            if not category.get('is_parent'):
+                callback_data = f"category_{category.get('id')}"
+            else:
+                callback_data = f"subcategory_{category.get('id')}"
             keyboard.add(InlineKeyboardButton(
-                text=category.get('name'), callback_data=f"category_{category.get('id')}"))
-        keyboard.add(InlineKeyboardButton(text='Назад', callback_data='back_to_start'))
+                text=category.get('name'), callback_data=callback_data))
+        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_start'))
+        return keyboard.adjust(1).as_markup()
+
+    @staticmethod
+    async def inline_subcategories(category_id: int):
+        """Клавиатура в категории с подкатегориями."""
+
+        keyboard = InlineKeyboardBuilder()
+        categories = await Category.select_subcategories(category_id)
+        for category in categories:
+            callback_data = f"category_{category.get('id')}"
+            keyboard.add(InlineKeyboardButton(
+                text=category.get('name'), callback_data=callback_data))
+        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='start_catalog'))
         return keyboard.adjust(1).as_markup()
 
     # @staticmethod

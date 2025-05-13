@@ -3,7 +3,7 @@ from datetime import datetime
 from email.policy import default
 
 from aiogrambot.database.db import Base
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import ForeignKey, func, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Annotated, Optional
 
@@ -25,6 +25,8 @@ class Categories(Base):
 
     id: Mapped[intpk]
     name: Mapped[str]
+    parent_cat: Mapped[Optional[int]]
+    is_parent: Mapped[bool]  = mapped_column(default=False)
 
 class Measurement(enum.Enum):
     kg = 'кг.'
@@ -76,6 +78,10 @@ class GoodsBaskets(Base):
     price: Mapped[int]
     basket_id: Mapped[int] = mapped_column(ForeignKey('baskets.id'))
     quantity: Mapped[float]
+
+    __table_args__ = (
+        UniqueConstraint("basket_id", "good_id", name="uix_basket_good"),
+    )
 
 
 class Orders(Base):

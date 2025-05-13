@@ -32,7 +32,7 @@ async def catalog(callback: CallbackQuery):
     telegram_id = callback.from_user.id
     await check_users(telegram_id)
     await callback.message.edit_text(
-        'Выберите категорию, чтобы посмотреть список товаров',
+        'Выберите категорию:',
         reply_markup=await InlineCategory.inline_categories())
 
 @start_router.callback_query(F.data.startswith('category_'))
@@ -46,25 +46,41 @@ async def category(callback: CallbackQuery):
     )
 
 
+@start_router.callback_query(F.data.startswith('subcategory_'))
+async def subcategory(callback: CallbackQuery):
+    await callback_message_editor(
+        callback=callback,
+        text='Выберите подкатегорию:',
+        reply_markup=await InlineCategory.inline_subcategories(category_id=int(callback.data.split('_')[-1]))
+    )
 
 @start_router.callback_query(F.data.startswith('good_'))
-async def category(callback: CallbackQuery):
+async def good(callback: CallbackQuery):
 
     good_id = int(callback.data.split('_')[-1])
+    quantity = int(callback.data.split('_')[-2])
     good = await Good.select_good(good_id=good_id)
     await callback.answer(f"Вы выбрали {good.get('name')}")
-    text = (f"{good.get('name')}\n {good.get('description')}\n "
-            f"{good.get('price')}р / {Measurement[good.get('measurement')].value}")
+    text = (f"🛒 *{good.get('name')}* {good.get('description')} — "
+            f"{good.get('price')} ₽ / {Measurement[good.get('measurement')].value}\n"
+            f"Выберите количество:")
     try:
         await callback.message.edit_media(
             media = InputMediaPhoto(
                 media=good.get('image_id'),
-                caption=text
+                caption=text,
+                parse_mode='Markdown'
             )
         )
     except TelegramBadRequest:
         await callback.message.edit_text(
-            text=text
+            text=text,
+            parse_mode='Markdown'
         )
 
-    await callback.message.edit_reply_markup(reply_markup = await InlineGood.inline_good(good))
+    await callback.message.edit_reply_markup(reply_markup = await InlineGood.inline_good(good, quantity))
+
+@start_router.callback_query(F.data == "noop")
+async def noop_callback(callback: CallbackQuery):
+
+    await callback.answer()

@@ -1,7 +1,9 @@
 import asyncio
 import enum
 
-from sqlalchemy import insert, text
+from sqlalchemy import text
+from sqlalchemy.dialects.postgresql import insert
+
 
 from aiogrambot.database.db import async_session, engine
 from aiogrambot.database.models import Base, Categories, Goods, Baskets, BasketStatuses, GoodsBaskets, Users
@@ -14,10 +16,24 @@ class Category:
         async with async_session() as session:
 
             query = """
-                    SELECT id, name
-                    FROM categories;
+                    SELECT id, name, is_parent
+                    FROM categories
+                    WHERE parent_cat IS NULL;
                     """
             result = await session.execute(text(query))
+            categories = result.mappings().all()
+            return categories
+
+
+    @staticmethod
+    async def select_subcategories(parent_cat: int):
+        async with async_session() as session:
+            query = """
+                        SELECT id, name
+                        FROM categories
+                        WHERE parent_cat =:parent_cat;
+                        """
+            result = await session.execute(text(query), {'parent_cat': parent_cat})
             categories = result.mappings().all()
             return categories
 
@@ -126,13 +142,19 @@ class GoodBasket:
     @staticmethod
     async def input_good_to_basket(basket_id: int, good_id: int, quantity: int, price: int):
         async with async_session() as session:
-            good_basket = GoodsBaskets(
+            stmt = insert(GoodsBaskets).values(
                 basket_id=basket_id,
                 good_id=good_id,
                 quantity=quantity,
                 price=price
+            ).on_conflict_do_update(
+                index_elements=["basket_id", "good_id"],
+                set_={
+                    "quantity": quantity,
+                    "price": price
+                }
             )
-            session.add(good_basket)
+            await session.execute(stmt)
             await session.commit()
 
     @staticmethod
