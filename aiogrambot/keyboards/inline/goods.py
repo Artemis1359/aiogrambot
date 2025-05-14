@@ -20,7 +20,7 @@ class InlineGood:
                 text=f"{good.get('name')} - {good.get('price')}р / {Measurement[good.get('measurement')].value}",
                 callback_data=f"good_1_{good.get('id')}"))
         if not subcategory:
-            callback_data = 'start_catalog'
+            callback_data = 'back_to_catalog'
         else:
             callback_data = f"subcategory_{subcategory.get('parent_cat')}"
         keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data=callback_data))
@@ -35,12 +35,14 @@ class InlineGood:
         category_id = good.get('category_id')
 
         keyboard = InlineKeyboardBuilder()
+
+
         keyboard.add(InlineKeyboardButton(text='➖', callback_data=f'q_good_{quantity - 1}_{good_id}'))
-        keyboard.add(InlineKeyboardButton(text=f'{quantity}', callback_data = "noop"))
+        keyboard.add(InlineKeyboardButton(text=f'{quantity}', callback_data="noop"))
         keyboard.add(InlineKeyboardButton(text='➕', callback_data=f'q_good_{quantity + 1}_{good_id}'))
         keyboard.add(InlineKeyboardButton(
             text='✅ Добавить',
             callback_data=f"b_add_{quantity}_{price}_{good_id}"))
-
         keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data=f'category_{category_id}'))
+
         return keyboard.adjust(3).as_markup()

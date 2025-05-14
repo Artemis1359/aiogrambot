@@ -13,12 +13,11 @@ class InlineAdmin:
 
         keyboard = InlineKeyboardBuilder()
         keyboard.add(
-            InlineKeyboardButton(text='🛒 Каталог', callback_data='start_catalog'),
-            InlineKeyboardButton(text='🧺 Корзина', callback_data='start_basket'),
+            InlineKeyboardButton(text='🛒 Каталог', callback_data='back_to_catalog'),
+            InlineKeyboardButton(text='🧺 Корзина', callback_data='back_to_basket'),
             InlineKeyboardButton(text='Контакты', callback_data='start_contacts')
         )
         is_admin = await Admin.is_user_admin(telegram_id=telegram_id)
-        print(is_admin)
         if is_admin:
             keyboard.add(
                 InlineKeyboardButton(text='💼 Админ-панель', callback_data='admin')
@@ -35,7 +34,7 @@ class InlineAdmin:
             InlineKeyboardButton(text='Товары', callback_data='admin_goods'),
             InlineKeyboardButton(text='Категории', callback_data='admin_categories'),
             InlineKeyboardButton(text='Пользователи', callback_data='admin_users'),
-            InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_start')
+            # InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_start')
         )
         return keyboard.adjust(1).as_markup()
 
@@ -48,7 +47,7 @@ class InlineAdmin:
             InlineKeyboardButton(text='Добавить товар', callback_data='add_good'),
             InlineKeyboardButton(text='Изменить товар', callback_data='edit_good'),
             InlineKeyboardButton(text='Удалить товар', callback_data='del_good'),
-            InlineKeyboardButton(text='⬅ Назад', callback_data='admin')
+            InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_admin')
         )
         return keyboard.adjust(1).as_markup()
 
@@ -60,7 +59,7 @@ class InlineAdmin:
         keyboard.add(
             InlineKeyboardButton(text='Добавить категорию', callback_data='add_cat'),
             InlineKeyboardButton(text='Изменить категорию', callback_data='edit_cat'),
-            InlineKeyboardButton(text='⬅ Назад', callback_data='admin')
+            InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_admin')
         )
         return keyboard.adjust(1).as_markup()
 
@@ -72,7 +71,7 @@ class InlineAdmin:
         keyboard.add(
             InlineKeyboardButton(text='Назначить админа', callback_data='add_adm'),
             InlineKeyboardButton(text='Удалить админа', callback_data='del_adm'),
-            InlineKeyboardButton(text='⬅ Назад', callback_data='admin')
+            InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_admin')
         )
         return keyboard.adjust(1).as_markup()
 

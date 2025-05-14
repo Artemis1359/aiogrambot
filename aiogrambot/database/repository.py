@@ -1,7 +1,7 @@
 import asyncio
 import enum
 
-from sqlalchemy import text
+from sqlalchemy import text, delete
 from sqlalchemy.dialects.postgresql import insert
 
 
@@ -137,7 +137,7 @@ class Basket:
                                 and client_id =:telegram_id;
                             """
             result = await session.execute(text(query), {'telegram_id': telegram_id})
-            good = result.fetchone()
+            good = result.mappings().first()
             return good
 
     @staticmethod
@@ -175,22 +175,42 @@ class GoodBasket:
     async def select_goods_in_basket(telegram_id: int):
         async with async_session() as session:
             query = """
-                                SELECT 
-                                    goods.name,
-                                    goods_baskets.price,
-                                    quantity,
-                                    goods_baskets.price * quantity as amount
-                                FROM goods_baskets
-                                JOIN baskets
-                                    on baskets.id=goods_baskets.basket_id
-                                    AND baskets.status = 'created'
-                                    AND client_id =:telegram_id
-                                JOIN goods
-                                    on goods.id=goods_baskets.good_id
-                                """
+                    SELECT 
+                        goods.id,
+                        goods_baskets.basket_id,
+                        goods.name,
+                        goods_baskets.price,
+                        quantity,
+                        goods_baskets.price * quantity as amount
+                    FROM goods_baskets
+                    JOIN baskets
+                        on baskets.id=goods_baskets.basket_id
+                        AND baskets.status = 'created'
+                        AND client_id =:telegram_id
+                    JOIN goods
+                        on goods.id=goods_baskets.good_id
+                    """
             result = await session.execute(text(query), {'telegram_id': telegram_id})
             good = result.mappings().all()
             return good
+
+    @staticmethod
+    async def delete_all_goods_from_basket(basket_id: int):
+        async with async_session() as session:
+            stmt = delete(GoodsBaskets).where(GoodsBaskets.basket_id == basket_id)
+            await session.execute(stmt)
+            await session.commit()
+
+    @staticmethod
+    async def delete_good_from_basket(basket_id: int, good_id: int):
+        async with async_session() as session:
+            stmt = delete(GoodsBaskets).where(
+                GoodsBaskets.basket_id == basket_id,
+                GoodsBaskets.good_id == good_id
+            )
+            await session.execute(stmt)
+            await session.commit()
+
 
 class Order:
     pass

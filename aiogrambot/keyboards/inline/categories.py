@@ -19,7 +19,7 @@ class InlineCategory:
                 callback_data = f"subcategory_{category.get('id')}"
             keyboard.add(InlineKeyboardButton(
                 text=category.get('name'), callback_data=callback_data))
-        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_start'))
+        # keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_start'))
         return keyboard.adjust(1).as_markup()
 
     @staticmethod
@@ -32,7 +32,7 @@ class InlineCategory:
             callback_data = f"category_{category.get('id')}"
             keyboard.add(InlineKeyboardButton(
                 text=category.get('name'), callback_data=callback_data))
-        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='start_catalog'))
+        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_catalog'))
         return keyboard.adjust(1).as_markup()
 
     @staticmethod
