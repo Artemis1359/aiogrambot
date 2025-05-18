@@ -3,7 +3,7 @@ from datetime import datetime
 from email.policy import default
 
 from aiogrambot.database.db import Base
-from sqlalchemy import ForeignKey, func, UniqueConstraint, CheckConstraint
+from sqlalchemy import ForeignKey, func, UniqueConstraint, CheckConstraint, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Annotated, Optional
 
@@ -13,8 +13,7 @@ intpk=Annotated[int, mapped_column(primary_key=True)]
 class Users(Base):
     __tablename__ = 'users'
 
-    id: Mapped[intpk]
-    telegram_id: Mapped[int] = mapped_column(unique=True)
+    telegram_id: Mapped[intpk] = mapped_column(BigInteger, unique=True)
     name: Mapped[Optional[str]]
     phone_number: Mapped[Optional[str]]
     is_admin: Mapped[bool] = mapped_column(default=False)
@@ -65,6 +64,7 @@ class Baskets(Base):
 
     id: Mapped[intpk]
     client_id: Mapped[int] = mapped_column(ForeignKey('users.telegram_id'))
+    comment: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(),
                                                  onupdate=datetime.now)
@@ -95,4 +95,4 @@ class Orders(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(),
                                                  onupdate=datetime.now)
-    Status: Mapped[OrderStatuses]
+    status: Mapped[OrderStatuses]

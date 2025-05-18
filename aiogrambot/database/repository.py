@@ -1,12 +1,13 @@
 import asyncio
 import enum
 
-from sqlalchemy import text, delete
+from sqlalchemy import text, delete, update
 from sqlalchemy.dialects.postgresql import insert
 
 
 from aiogrambot.database.db import async_session, engine
-from aiogrambot.database.models import Base, Categories, Goods, Baskets, BasketStatuses, GoodsBaskets, Users
+from aiogrambot.database.models import Base, Categories, Goods, Baskets, BasketStatuses, GoodsBaskets, Users, Orders, \
+    OrderStatuses
 
 
 class Category:
@@ -137,8 +138,8 @@ class Basket:
                                 and client_id =:telegram_id;
                             """
             result = await session.execute(text(query), {'telegram_id': telegram_id})
-            good = result.mappings().first()
-            return good
+            basket = result.mappings().first()
+            return basket
 
     @staticmethod
     async def create_new_basket(telegram_id: int):
@@ -150,6 +151,43 @@ class Basket:
             session.add(basket)
             await session.commit()
             return basket.id
+
+    @staticmethod
+    async def select_comment_basket(telegram_id: int):
+        async with async_session() as session:
+            query = """
+                                SELECT 
+                                    comment
+                                FROM baskets
+                                WHERE
+                                    status = 'created'
+                                    and client_id =:telegram_id;
+                                """
+            result = await session.execute(text(query), {'telegram_id': telegram_id})
+            comment = result.mappings().first()
+            return comment
+
+    @staticmethod
+    async def input_comment(telegram_id: int, comment: str):
+        async with async_session() as session:
+            await session.execute(
+                update(Baskets)
+                .where(Baskets.client_id == telegram_id,
+                       Baskets.status == 'created'
+                       )
+                .values(comment=comment))
+            await session.commit()
+
+    @staticmethod
+    async def update_basket_status(basket_id: int):
+        async with async_session() as session:
+            await session.execute(
+                update(Baskets)
+                .where(Baskets.id == basket_id
+                       )
+                .values(status='collected'))
+            await session.commit()
+
 
 class GoodBasket:
 
@@ -195,6 +233,28 @@ class GoodBasket:
             return good
 
     @staticmethod
+    async def select_goods_by_basket(basket_id: int):
+        async with async_session() as session:
+            query = """
+                    SELECT 
+                        goods.id,
+                        goods_baskets.basket_id,
+                        goods.name,
+                        goods_baskets.price,
+                        quantity,
+                        goods_baskets.price * quantity as amount
+                    FROM goods_baskets
+                    JOIN baskets
+                        on baskets.id=goods_baskets.basket_id
+                    JOIN goods
+                        on goods.id=goods_baskets.good_id
+                    WHERE goods_baskets.basket_id =:basket_id
+                    """
+            result = await session.execute(text(query), {'basket_id': basket_id})
+            good = result.mappings().all()
+            return good
+
+    @staticmethod
     async def delete_all_goods_from_basket(basket_id: int):
         async with async_session() as session:
             stmt = delete(GoodsBaskets).where(GoodsBaskets.basket_id == basket_id)
@@ -213,7 +273,39 @@ class GoodBasket:
 
 
 class Order:
-    pass
+
+    @staticmethod
+    async def create_new_order(telegram_id: int, basket_id: int):
+        async with async_session() as session:
+            order = Orders(
+                client_id=telegram_id,
+                basket_id=basket_id,
+                status=OrderStatuses.created
+            )
+            session.add(order)
+            await session.commit()
+            return order.id
+
+    @staticmethod
+    async def select_order_info(order_id: int):
+        async with async_session() as session:
+            query = """
+                    SELECT 
+                        users.name,
+                        users.phone_number,
+                        baskets.id as basket_id,
+                        baskets.comment
+                    FROM orders
+                    JOIN users
+                        ON users.telegram_id = orders.client_id
+                    JOIN baskets 
+                        ON baskets.id = orders.basket_id
+                    WHERE
+                        orders.id =:order_id;
+                    """
+            result = await session.execute(text(query), {'order_id': order_id})
+            order = result.mappings().first()
+            return order
 
 class User:
 
@@ -222,14 +314,27 @@ class User:
         async with async_session() as session:
 
             query = """
-                    SELECT id
+                    SELECT telegram_id
                     FROM users
                     WHERE 
                         telegram_id=:telegram_id;
                     """
             result = await session.execute(text(query), {'telegram_id': telegram_id})
-            id = result.mappings().first()
-            return id
+            user_id = result.mappings().first()
+            return user_id
+
+    @staticmethod
+    async def select_user_info(telegram_id: int):
+        async with async_session() as session:
+            query = """
+                        SELECT name, phone_number
+                        FROM users
+                        WHERE 
+                            telegram_id=:telegram_id;
+                        """
+            result = await session.execute(text(query), {'telegram_id': telegram_id})
+            user_info = result.mappings().all()
+            return user_info
 
     @staticmethod
     async def input_user(telegram_id: int):
@@ -239,4 +344,23 @@ class User:
             )
             session.add(user)
             await session.commit()
+
+    @staticmethod
+    async def input_phone_number(telegram_id: int, phone_number: str):
+        async with async_session() as session:
+            await session.execute(
+                update(Users)
+                .where(Users.telegram_id == telegram_id)
+                .values(phone_number=phone_number))
+            await session.commit()
+
+    @staticmethod
+    async def input_name(telegram_id: int, name: str):
+        async with async_session() as session:
+            await session.execute(
+                update(Users)
+                .where(Users.telegram_id == telegram_id)
+                .values(name=name))
+            await session.commit()
+
 
