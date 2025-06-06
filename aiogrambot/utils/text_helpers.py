@@ -1,21 +1,8 @@
-# from aiogrambot.database.models import Measurement
-from tkinter.font import names
 
 from aiogrambot.database.repository import GoodBasket, Order
 import re
 
 PHONE_REGEX = re.compile(r"^\+7\d{10}$")
-
-# async def measure_check(measure):
-#     """Возвращает текст в зависимости от единицы измерения."""
-#
-#     if measure in ('l5', 'l6'):
-#         text = f'Выберите количество банок {Measurement[measure].value}'
-#     elif measure == 'kg':
-#         text = f'Выберите количество кг'
-#     else:
-#         text = 'Выберите количество товара.'
-#     return text
 
 async def basket_text(data, order: bool = False):
     """Возвращает данные по корзине пользователя."""

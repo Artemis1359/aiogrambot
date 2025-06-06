@@ -1,5 +1,3 @@
-from tkinter.font import names
-
 from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandStart
@@ -29,14 +27,6 @@ async def cmd_start(message: Message):
     #                      reply_markup=await InlineAdmin.inline_is_admin(telegram_id=telegram_id))
     await message.answer('''Привет! 👋 Добро пожаловать в Мамину Кухню.''',
                          reply_markup=await main_page(telegram_id=telegram_id))
-
-
-# @start_router.callback_query(F.data == 'back_to_start')
-# async def start_back_to_start(callback: CallbackQuery):
-#     await callback.answer('Вы выбрали каталог!')
-#     telegram_id = callback.from_user.id
-#     await callback.message.edit_text('''Привет! 👋 Добро пожаловать в Мамину Кухню.''',
-#                                      reply_markup=await InlineAdmin.inline_is_admin(telegram_id=telegram_id))
 
 
 @start_router.callback_query(F.data == 'back_to_catalog')
