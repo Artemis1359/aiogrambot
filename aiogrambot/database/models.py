@@ -24,7 +24,7 @@ class Categories(Base):
 
     id: Mapped[intpk]
     name: Mapped[str]
-    parent_cat: Mapped[Optional[int]]
+    parent_cat: Mapped[Optional[int]] = mapped_column(ForeignKey('categories.id', ondelete='SET NULL'))
     is_parent: Mapped[bool]  = mapped_column(default=False)
 
 class Measurement(enum.Enum):
@@ -32,6 +32,7 @@ class Measurement(enum.Enum):
     piece = 'шт.'
     l6 = '0,6 л.'
     l5 = '0,5 л.'
+    p10 = '10 шт.'
 
 
 class Goods(Base):
@@ -41,7 +42,7 @@ class Goods(Base):
     name: Mapped[str]
     description: Mapped[str]
     category_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('categories.id', ondelete='SET NULL'))
+        ForeignKey('categories.id', ondelete='CASCADE'))
     price: Mapped[int]
     measurement: Mapped[Measurement]
     image_id: Mapped[str]
@@ -74,9 +75,9 @@ class Baskets(Base):
 class GoodsBaskets(Base):
     __tablename__ = 'goods_baskets'
     id: Mapped[intpk]
-    good_id: Mapped[int] = mapped_column(ForeignKey('goods.id'))
+    good_id: Mapped[int] = mapped_column(ForeignKey('goods.id', ondelete="CASCADE"))
     price: Mapped[int]
-    basket_id: Mapped[int] = mapped_column(ForeignKey('baskets.id'))
+    basket_id: Mapped[int] = mapped_column(ForeignKey('baskets.id', ondelete="CASCADE"))
     quantity: Mapped[int]
 
     __table_args__ = (
@@ -90,8 +91,8 @@ class Orders(Base):
     __tablename__ = 'orders'
 
     id: Mapped[intpk]
-    client_id: Mapped[int] = mapped_column(ForeignKey('users.telegram_id'))
-    basket_id: Mapped[int] = mapped_column(ForeignKey('baskets.id'))
+    client_id: Mapped[int] = mapped_column(ForeignKey('users.telegram_id', ondelete="CASCADE"))
+    basket_id: Mapped[int] = mapped_column(ForeignKey('baskets.id', ondelete="CASCADE"))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(),
                                                  onupdate=datetime.now)
