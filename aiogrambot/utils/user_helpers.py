@@ -50,6 +50,6 @@ async def check_user_info(telegram_id: int, state: FSMContext, message: Message)
                                     name=name, number=phone_number,
                                     comment=comment)
 
-            await message.answer(text, reply_markup=await InlineOrder.inline_make_order(), parse_mode="Markdown")
+            await message.answer(text, reply_markup=await InlineOrder.inline_make_order(), parse_mode="HTML")
     else:
         await message.answer('🧺 Корзина пуста')
