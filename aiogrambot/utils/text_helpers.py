@@ -25,7 +25,7 @@ async def order_text(telegram_id:int,
     goods = await GoodBasket.select_goods_in_basket(telegram_id)
     text = await basket_text(goods, order=True)
     order_text = (
-        f"🧾 <b>Новый заказ<b>\n"
+        f"🧾 <b>Новый заказ</b>\n"
         f"👤 Имя: {name}\n"
         f"📞 Телефон: {number}\n"
         f"📝 Комментарий: {comment}\n"
