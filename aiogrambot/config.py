@@ -22,6 +22,10 @@ class Settings(BaseSettings):
         return (f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@"
                 f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}")
 
+    def get_db_sync_url(self):
+        return (f"postgresql://{self.DB_USER}:{self.DB_PASS}@"
+                f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}")
+
 settings = Settings()
 
 # print(settings.get_db_url())

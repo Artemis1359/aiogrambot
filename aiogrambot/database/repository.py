@@ -19,7 +19,8 @@ class Category:
             query = """
                     SELECT id, name, is_parent
                     FROM categories
-                    WHERE parent_cat IS NULL;
+                    WHERE parent_cat IS NULL
+                    ORDER BY id;
                     """
             result = await session.execute(text(query))
             categories = result.mappings().all()
@@ -32,7 +33,8 @@ class Category:
             query = """
                         SELECT id, name
                         FROM categories
-                        WHERE parent_cat =:parent_cat;
+                        WHERE parent_cat =:parent_cat
+                        ORDER BY id;
                         """
             result = await session.execute(text(query), {'parent_cat': parent_cat})
             categories = result.mappings().all()
@@ -85,7 +87,8 @@ class Good:
                     SELECT id, name, price, measurement
                     FROM goods
                     WHERE
-                        category_id =:category_id;
+                        category_id =:category_id
+                    ORDER BY id;
                     """
             result = await session.execute(text(query), {'category_id': category_id})
             goods = result.mappings().all()

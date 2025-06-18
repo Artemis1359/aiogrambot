@@ -29,6 +29,7 @@ class Categories(Base):
 
 class Measurement(enum.Enum):
     kg = 'кг.'
+    g5 = '500 г.'
     piece = 'шт.'
     l6 = '0,6 л.'
     l5 = '0,5 л.'
