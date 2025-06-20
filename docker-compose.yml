@@ -20,4 +20,3 @@ services:
     env_file: .env
     depends_on:
       - db
-    command: python aiogrambot/run.py

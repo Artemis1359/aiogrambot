@@ -40,16 +40,28 @@ class Category:
             categories = result.mappings().all()
             return categories
 
+    @staticmethod
+    async def select_all_subcategories():
+        async with async_session() as session:
+            query = """
+                    SELECT id, name
+                    FROM categories
+                    WHERE parent_cat IS NOT NULL
+                    ORDER BY id;
+                    """
+            result = await session.execute(text(query))
+            categories = result.mappings().all()
+            return categories
 
     @staticmethod
     async def select_is_subcat(category_id: int):
         async with async_session() as session:
             query = """
-                            SELECT parent_cat
-                            FROM categories
-                            WHERE id =:category_id
-                                AND parent_cat IS NOT NULL;
-                            """
+                    SELECT parent_cat
+                    FROM categories
+                    WHERE id =:category_id
+                        AND parent_cat IS NOT NULL;
+                    """
             result = await session.execute(text(query), {'category_id': category_id})
             categories = result.mappings().first()
             return categories
@@ -61,6 +73,43 @@ class Category:
                 name=data.get('name')
             )
             session.add(category)
+            await session.commit()
+
+    @staticmethod
+    async def input_subcategory(data):
+        async with async_session() as session:
+            category = Categories(
+                name=data.get('name'),
+                parent_cat=data.get('parent_cat')
+            )
+            session.add(category)
+            parent_category = await session.get(Categories, data.get('parent_cat'))
+            if parent_category is None:
+                raise ValueError("Родительская категория не найдена")
+
+            parent_category.is_parent = True
+            await session.commit()
+
+    @staticmethod
+    async def update_category(data):
+        async with async_session() as session:
+            category = await session.get(Categories, data.get('cat_id'))
+            if category is None:
+                raise ValueError("Категория не найдена")
+
+            category.name = data.get('name')
+
+            await session.commit()
+
+    @staticmethod
+    async def update_subcategory(data):
+        async with async_session() as session:
+            subcategory = await session.get(Categories, data.get('subcat_id'))
+            if subcategory is None:
+                raise ValueError("Подкатегория не найдена")
+
+            subcategory.name = data.get('name')
+
             await session.commit()
 
 class Good:

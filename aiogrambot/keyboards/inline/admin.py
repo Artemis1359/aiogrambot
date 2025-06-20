@@ -58,7 +58,9 @@ class InlineAdmin:
         keyboard = InlineKeyboardBuilder()
         keyboard.add(
             InlineKeyboardButton(text='Добавить категорию', callback_data='add_cat'),
+            InlineKeyboardButton(text='Добавить подкатегорию', callback_data='add_subcat'),
             InlineKeyboardButton(text='Изменить категорию', callback_data='edit_cat'),
+            InlineKeyboardButton(text='Изменить подкатегорию', callback_data='edit_subcat'),
             InlineKeyboardButton(text='⬅ Назад', callback_data='back_to_admin')
         )
         return keyboard.adjust(1).as_markup()
