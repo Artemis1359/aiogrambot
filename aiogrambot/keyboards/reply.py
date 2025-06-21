@@ -5,19 +5,6 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogrambot.database.repository import Admin
 
 
-# from aiogrambot.database.repository import select_categories
-#
-# main = ReplyKeyboardMarkup(
-#     keyboard=[
-#         [KeyboardButton(text='🛒 Каталог')],
-#         [KeyboardButton(text='🧺Корзина')]
-#     ],
-#     resize_keyboard=True,
-#     input_field_placeholder='Выберите пункт меню'
-# )
-#
-#
-#
 async def main_page(telegram_id: int):
     keyboard = ReplyKeyboardBuilder()
     keyboard.add(KeyboardButton(text='🛒 Каталог'))
@@ -31,9 +18,3 @@ async def main_page(telegram_id: int):
             KeyboardButton(text='💼 Админ-панель')
         )
     return keyboard.adjust(2).as_markup(resize_keyboard=True, input_field_placeholder="Выберите пункт меню 👇")
-#
-# async def reply_cars():
-#     keyboard = ReplyKeyboardBuilder()
-#     for car in cars:
-#         keyboard.add(KeyboardButton(text=car))
-#     return keyboard.adjust(2).as_markup() # 2 это число кнопок в строке

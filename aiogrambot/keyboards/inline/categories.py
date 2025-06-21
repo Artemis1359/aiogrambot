@@ -42,18 +42,3 @@ class InlineCategory:
         keyboard = InlineKeyboardBuilder()
         keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data=f'category_{category_id}'))
         return keyboard.adjust(1).as_markup()
-
-    @staticmethod
-    async def inline_admin_categories(prefix: str):
-        """Клавиатура категорий в админке."""
-
-        keyboard = InlineKeyboardBuilder()
-        categories = await Category.select_categories()
-        if prefix == 'e_admin_subcat_':
-            categories = await Category.select_all_subcategories()
-        for category in categories:
-            callback_data = f"{prefix}{category.get('id')}"
-            keyboard.add(InlineKeyboardButton(
-                text=category.get('name'), callback_data=callback_data))
-        keyboard.add(InlineKeyboardButton(text='⬅ Назад', callback_data='admin_categories'))
-        return keyboard.adjust(1).as_markup()

@@ -1,13 +1,11 @@
 from aiogram import F, Router
-from aiogram.exceptions import TelegramBadRequest
-from aiogram.filters import Command, CommandStart
+
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, InputMediaPhoto
+from aiogram.types import Message, CallbackQuery
 
 
 from aiogrambot.database.repository import Basket, GoodBasket
 from aiogrambot.keyboards.inline import InlineBasket, InlineCategory
-from aiogrambot.utils.callback_helpers import callback_message_editor
 from aiogrambot.utils.text_helpers import basket_text
 
 basket_router = Router()
@@ -111,12 +109,11 @@ async def del_pos(callback: CallbackQuery):
     await callback.answer()
 
 
-@basket_router.callback_query(F.data.startswith('edit_menu_'))
+@basket_router.callback_query(F.data =='edit_menu')
 async def edit_menu(callback: CallbackQuery):
     """Меню изменения количества позиции в корзине."""
 
     telegram_id = callback.from_user.id
-    basket_id = int(callback.data.split('_')[-1])
 
     text = 'Выберите позицию, которую хотите изменить:'
     await callback.message.edit_text(

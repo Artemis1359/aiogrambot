@@ -36,7 +36,6 @@ class InlineGood:
 
         keyboard = InlineKeyboardBuilder()
 
-
         keyboard.add(InlineKeyboardButton(text='➖', callback_data=f'q_good_{quantity - 1}_{good_id}'))
         keyboard.add(InlineKeyboardButton(text=f'{quantity}', callback_data="noop"))
         keyboard.add(InlineKeyboardButton(text='➕', callback_data=f'q_good_{quantity + 1}_{good_id}'))

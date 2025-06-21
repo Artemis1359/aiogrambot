@@ -1,6 +1,5 @@
 import enum
 from datetime import datetime
-from email.policy import default
 
 from aiogrambot.database.db import Base
 from sqlalchemy import ForeignKey, func, UniqueConstraint, CheckConstraint, BigInteger
@@ -26,6 +25,7 @@ class Categories(Base):
     name: Mapped[str]
     parent_cat: Mapped[Optional[int]] = mapped_column(ForeignKey('categories.id', ondelete='SET NULL'))
     is_parent: Mapped[bool]  = mapped_column(default=False)
+    is_active: Mapped[bool] = mapped_column(default=True)
 
 class Measurement(enum.Enum):
     kg = 'кг.'

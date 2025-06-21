@@ -10,3 +10,6 @@ class AddGood(StatesGroup):
 
 class AddCategory(StatesGroup):
     waiting_for_name = State()
+
+class EditGood(StatesGroup):
+    waiting_for_value = State()

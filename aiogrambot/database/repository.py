@@ -1,12 +1,9 @@
-import asyncio
-import enum
-
 from sqlalchemy import text, delete, update
 from sqlalchemy.dialects.postgresql import insert
 
 
-from aiogrambot.database.db import async_session, engine
-from aiogrambot.database.models import Base, Categories, Goods, Baskets, BasketStatuses, GoodsBaskets, Users, Orders, \
+from aiogrambot.database.db import async_session
+from aiogrambot.database.models import Categories, Goods, Baskets, BasketStatuses, GoodsBaskets, Users, Orders, \
     OrderStatuses
 
 
@@ -20,6 +17,21 @@ class Category:
                     SELECT id, name, is_parent
                     FROM categories
                     WHERE parent_cat IS NULL
+                        and is_active = TRUE
+                    ORDER BY id;
+                    """
+            result = await session.execute(text(query))
+            categories = result.mappings().all()
+            return categories
+
+    @staticmethod
+    async def select_all_categories():
+        async with async_session() as session:
+            query = """
+                    SELECT id, name
+                    FROM categories
+                    WHERE is_parent IS FALSE
+                        AND is_active = TRUE
                     ORDER BY id;
                     """
             result = await session.execute(text(query))
@@ -34,6 +46,7 @@ class Category:
                         SELECT id, name
                         FROM categories
                         WHERE parent_cat =:parent_cat
+                            AND is_active = TRUE
                         ORDER BY id;
                         """
             result = await session.execute(text(query), {'parent_cat': parent_cat})
@@ -47,9 +60,23 @@ class Category:
                     SELECT id, name
                     FROM categories
                     WHERE parent_cat IS NOT NULL
+                        AND is_active = TRUE
                     ORDER BY id;
                     """
             result = await session.execute(text(query))
+            categories = result.mappings().all()
+            return categories
+
+    @staticmethod
+    async def select_all_from_categories(is_active):
+        async with async_session() as session:
+            query = """
+                    SELECT id, name
+                    FROM categories
+                    WHERE is_active =:is_active
+                    ORDER BY id; 
+                    """
+            result = await session.execute(text(query), {'is_active': is_active})
             categories = result.mappings().all()
             return categories
 
@@ -112,6 +139,18 @@ class Category:
 
             await session.commit()
 
+    @staticmethod
+    async def update_is_active_category(data):
+        async with async_session() as session:
+            category = await session.get(Categories, data.get('id'))
+            if category is None:
+                raise ValueError("Категория не найдена")
+
+            category.is_active = data.get('is_active')
+
+            await session.commit()
+            return category.name
+
 class Good:
 
     @staticmethod
@@ -119,11 +158,11 @@ class Good:
         async with async_session() as session:
             good = Goods(
                 name=data.get('name'),
-                description=data.get('description'),
+                description=data.get('description', ''),
                 measurement=data.get('measurement'),
                 category_id=data.get('category_id'),
                 price=data.get('price'),
-                image_id=data.get('image_id')
+                image_id=data.get('image_id', '')
             )
             session.add(good)
             await session.commit()
@@ -137,6 +176,7 @@ class Good:
                     FROM goods
                     WHERE
                         category_id =:category_id
+                        and is_active IS TRUE
                     ORDER BY id;
                     """
             result = await session.execute(text(query), {'category_id': category_id})
@@ -159,22 +199,60 @@ class Good:
             good = result.mappings().first()
             return good
 
+    @staticmethod
+    async def select_all_goods(is_active: bool):
+        async with async_session() as session:
+            query = """
+                    SELECT id, name, price, measurement
+                    FROM goods
+                    WHERE is_active = :is_active
+                    ORDER BY name;
+                    """
+            result = await session.execute(text(query), {'is_active': is_active})
+            goods = result.mappings().all()
+            return goods
+
+    @staticmethod
+    async def update_is_active_good(data):
+        async with async_session() as session:
+            good = await session.get(Goods, data.get('id'))
+            if good is None:
+                raise ValueError("Товар не найден")
+
+            good.is_active = data.get('is_active')
+
+            await session.commit()
+            return good.name
+
+    @staticmethod
+    async def update_good(data):
+        async with async_session() as session:
+            good = await session.get(Goods, data.get('good_id'))
+            if good is None:
+                raise ValueError("Товар не найден")
+
+            fields = ["name", "price", "measurement", "category_id"]
+
+            for field in fields:
+                if field in data and data[field] is not None:
+                    setattr(good, field, data[field])
+
+            await session.commit()
+
 class Admin:
     @staticmethod
     async def is_user_admin(telegram_id: int):
         async with async_session() as session:
             query = """
-                            SELECT 
-                                is_admin
-                            FROM users
-                            WHERE
-                                telegram_id =:telegram_id;
-                            """
+                    SELECT 
+                        is_admin
+                    FROM users
+                    WHERE
+                        telegram_id =:telegram_id;
+                    """
             result = await session.execute(text(query), {'telegram_id': telegram_id})
-            is_admin = result.fetchone()
-            if is_admin:
-                is_admin=is_admin[0]
-            return is_admin
+            row = result.mappings().first()
+            return row['is_admin'] if row else None
 
 class Basket:
 
@@ -366,7 +444,7 @@ class User:
         async with async_session() as session:
 
             query = """
-                    SELECT telegram_id
+                    SELECT telegram_id, name
                     FROM users
                     WHERE 
                         telegram_id=:telegram_id;
@@ -385,14 +463,15 @@ class User:
                             telegram_id=:telegram_id;
                         """
             result = await session.execute(text(query), {'telegram_id': telegram_id})
-            user_info = result.mappings().all()
+            user_info = result.mappings().first()
             return user_info
 
     @staticmethod
-    async def input_user(telegram_id: int):
+    async def input_user(telegram_id: int, name: str):
         async with async_session() as session:
             user = Users(
-                telegram_id=telegram_id
+                telegram_id=telegram_id,
+                name=name
             )
             session.add(user)
             await session.commit()
@@ -413,6 +492,28 @@ class User:
                 update(Users)
                 .where(Users.telegram_id == telegram_id)
                 .values(name=name))
+            await session.commit()
+
+    @staticmethod
+    async def select_users_admin(is_admin: int):
+        async with async_session() as session:
+            is_admin = bool(is_admin)
+            query = """
+                    SELECT telegram_id, name, phone_number
+                    FROM users
+                    WHERE is_admin =:is_admin
+                    """
+            result = await session.execute(text(query), {'is_admin': is_admin})
+            users = result.mappings().all()
+            return users
+
+    @staticmethod
+    async def update_role(telegram_id: int, is_admin: bool):
+        async with async_session() as session:
+            await session.execute(
+                update(Users)
+                .where(Users.telegram_id == telegram_id)
+                .values(is_admin=is_admin))
             await session.commit()
 
 
