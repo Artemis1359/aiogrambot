@@ -34,6 +34,7 @@ class Measurement(enum.Enum):
     l6 = '0,6 л.'
     l5 = '0,5 л.'
     p10 = '10 шт.'
+    p20 = '20 шт.'
 
 
 class Goods(Base):
